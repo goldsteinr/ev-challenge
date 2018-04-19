@@ -1,22 +1,20 @@
 <template>
-  <b-container fluid>
-    <b-form @submit="onSubmit" v-if="show">
-      <b-form-row>
-        <b-input-group prepend="CEP*">
-          <b-form-input @input="handleInput" :state="validateCep" v-model="form.cep" aria-describedby="inputLiveFeedback"/>
-          <b-input-group-append>
-            <b-btn href="http://www.buscacep.correios.com.br/sistemas/buscacep/" target="_blank" size="sm" text="Não sei meu CEP" variant="link">Não sei meu CEP</b-btn>
-          </b-input-group-append>
-        </b-input-group>
-        <b-form-invalid-feedback id="inputLiveFeedback">
-          CEP Inválido
-        </b-form-invalid-feedback>
-      </b-form-row>
-      <b-form-row>
-        <b-button type="submit" variant="outline-success">Avançar</b-button>
-      </b-form-row>
-    </b-form>
-  </b-container>
+  <el-row>
+    <el-form status-icon :model="addressForm" ref="addressFormValidate" :rules="addressFormRules">
+      <el-row :gutter="20">
+        <el-col :span="12" :offset="6">
+          <el-form-item prop="cep">
+            <el-input maxlength="8" type="text" placeholder="Digite o seu CEP" @keyup.native="handleInput" v-model="addressForm.cep">
+              <template slot="prepend">CEP*:</template>
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="4">
+        <el-button type="text" @click="findMyCepNumber">Não sei o meu CEP</el-button>
+        </el-col>
+      </el-row>
+    </el-form>
+  </el-row>
 </template>
 
 <script>
@@ -24,47 +22,67 @@ import axios from 'axios'
 
 export default {
   data () {
+    const checkCep = (rule, value, callback) => {
+      const cepNumber = value
+      if (!cepNumber) {
+        return callback(new Error('Preencha o CEP'))
+      }
+      setTimeout(() => {
+        if (!this.validateCep()) {
+          callback(new Error('CEP inválido'))
+        } else {
+          callback()
+        }
+      }, 1000)
+    }
     return {
-      form: {
-        cep: null,
-        name: ''
+      addressForm: {
+        cep: '',
+        name: '',
+        bairro: '',
+        complemento: '',
+        cidade: '',
+        logradouro: '',
+        uf: ''
+      },
+      addressFormRules: {
+        cep: [
+          { validator: checkCep, trigger: 'change' }
+        ]
       },
       show: true
     }
   },
   methods: {
-    onSubmit (e) {
-      e.preventDefault()
-      alert(JSON.stringify(this.form))
+    validateCep () {
+      const validCepRegex = /^[0-9]{8}$/
+      const cepNumber = this.addressForm.cep ? this.addressForm.cep.replace('-', '') : this.addressForm.cep
+      return validCepRegex.test(cepNumber)
     },
     handleInput (e) {
-      if (this.form.cep.length > 9) {
-        this.form.cep = this.form.cep.slice(0, -1)
+      if (isNaN(e.key) && e.key !== 'Backspace' && e.key !== 'Enter') {
+        e.preventDefault()
         return false
       }
-      this.maskInputCep()
-      if (this.validateCep) {
-        axios.get(`https://viacep.com.br/ws/${this.form.cep.replace('-', '')}/json/`)
+      if (this.validateCep()) {
+        axios.get(`https://viacep.com.br/ws/${this.addressForm.cep}/json/`)
           .then(response => response.data)
-          .then(data => console.log(data))
+          .then((data) => {
+            this.addressForm.bairro = data.bairro
+            this.addressForm.cidade = data.localidade
+            this.addressForm.logradouro = data.logradouro
+            this.addressForm.uf = data.uf
+          })
           .catch(err => console.log(err))
       }
     },
-    maskInputCep () {
-      const cepMask = '#####-##'
-      const cepSize = this.form.cep.length
-      const saida = cepMask.substring(1, 0)
-      const texto = cepMask.substring(cepSize)
-      if (texto.substring(0, 1) !== saida) {
-        this.form.cep += texto.substring(0, 1)
-      }
+    findMyCepNumber () {
+      return window.open('http://www.buscacep.correios.com.br/sistemas/buscacep/', '_blank').focus()
     }
   },
   computed: {
-    validateCep () {
-      const validCepRegex = /^[0-9]{8}$/
-      const cepNumber = this.form.cep ? this.form.cep.replace('-', '') : this.form.cep
-      return validCepRegex.test(cepNumber)
+    formCompleted () {
+      return false
     }
   }
 }
