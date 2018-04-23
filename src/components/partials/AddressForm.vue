@@ -2,9 +2,17 @@
   <el-row>
     <el-form label-position="left" label-width="80px" status-icon :model="addressForm" ref="addressFormValidate" :rules="addressFormRules">
       <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item prop="name" label="Lugar">
+            <el-input type="text" placeholder="Casa, trabalho, etc..." v-model="addressForm.name">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
         <el-col :span="16">
           <el-form-item prop="cep" label="CEP">
-            <el-input maxlength="8" type="text" placeholder="Digite o seu CEP" @keyup.native="handleInput" v-model="addressForm.cep">
+            <el-input maxlength="8" type="text" placeholder="Digite o CEP" @keyup.native="handleInput" v-model="addressForm.cep">
             </el-input>
           </el-form-item>
         </el-col>
@@ -46,7 +54,7 @@
         <el-col :span="24">
           <el-form-item>
             <el-button plain>Cancelar</el-button>
-            <el-button type="success" plain @click="submitForm('addressFormValidate')">Confirmar</el-button>
+            <el-button type="success" :loading="isLoading" plain @click="submitForm('addressFormValidate')">Salvar endereço</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -73,16 +81,19 @@ export default {
       }, 1000)
     }
     return {
+      isLoading: false,
       addressForm: {
         cep: '',
         name: '',
         bairro: '',
-        complemento: '',
         cidade: '',
         logradouro: '',
         uf: ''
       },
       addressFormRules: {
+        name: [
+          { required: true, message: 'Por favor, inserir um lugar', trigger: 'blur' }
+        ],
         cep: [
           { required: true, message: 'Por favor, preencher CEP', trigger: 'blur' },
           { validator: checkCep, trigger: 'change' }
@@ -99,19 +110,20 @@ export default {
         uf: [
           { required: true, message: 'Por favor, preencher estado', trigger: 'blur' }
         ]
-      },
-      show: true
+      }
     }
   },
   methods: {
     submitForm (formName) {
+      this.isLoading = true
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
-        } else {
-          console.log('error submit!!')
-          return false
+          const newAddress = Object.assign({}, this.addressForm)
+          this.$emit('submit', newAddress)
+          this.isLoading = false
+          this.$refs[formName].resetFields()
         }
+        return false
       })
     },
     validateCep () {
