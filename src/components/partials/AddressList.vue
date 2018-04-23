@@ -14,13 +14,13 @@
           <div style="padding: 14px;">
             <h3 class="card-title">{{ address.name }}</h3>
             <div class="bottom clearfix">
-              <p>{{ address.logradouro }}</p>
-              <p>{{ address.bairro }} - {{ address.uf }}</p>
+              <p>{{ address.logradouro }}, {{ address.complemento }}</p>
+              <p>{{ address.bairro }}</p>
+              <p>{{ address.cidade }} - {{ address.uf }}</p>
               <p>{{ address.cep }}</p>
               <br>
               <el-button type="primary" icon="el-icon-edit" circle @click="editAddress()"></el-button>
               <el-dialog width="65%" title="Editar lugar" :visible.sync="addNewAddress">
-                <address-form @submit="handleSubmitAddress" :is-edit-address="address"></address-form>
               </el-dialog>
               <el-button type="danger" icon="el-icon-delete" circle @click="removeAddress(address.cep)"></el-button>
             </div>
@@ -46,15 +46,10 @@ export default {
   },
   methods: {
     getMapSrc (address) {
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyA9CUGqfNQqx-dZGRThotjPTfAIQaTf768&q=${address.logradouro},${address.cidade}+${address.uf}`
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyA9CUGqfNQqx-dZGRThotjPTfAIQaTf768&q=${address.logradouro}+${address.complemento},${address.cidade}+${address.uf}`
     },
     removeAddress (cep) {
       this.$emit('click', cep)
-    },
-    handleSubmitAddress (newAddress) {
-      this.addNewAddress = true
-      this.$emit('change', newAddress)
-      // this.$emit('submit', newAddress)
     },
     editAddress () {
       this.addNewAddress = true

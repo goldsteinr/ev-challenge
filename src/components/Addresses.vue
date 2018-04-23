@@ -9,11 +9,11 @@
     <el-row v-if="addresses.length > 0" :gutter="10">
       <el-col :span="24">
         <h2>Meus endereços</h2>
-        <address-list :addresses="addresses" @change="handleChangeAddress" @click="handleRemoveAddress"></address-list>
+        <address-list :addresses="addresses" @click="handleRemoveAddress"></address-list>
       </el-col>
     </el-row>
     <el-dialog width="65%" title="Adicionar novo endereço" :visible.sync="addNewAddress">
-      <address-form @submit="handleSubmitAddress" :is-edit="false"></address-form>
+      <address-form @submit="handleSubmitAddress" @cancel="handleCancelSubmitAddress"></address-form>
     </el-dialog>
   </div>
 </template>
@@ -39,8 +39,8 @@ export default {
     }
   },
   methods: {
-    handleChangeAddress (address) {
-      console.log(address)
+    handleCancelSubmitAddress () {
+      this.addNewAddress = false
     },
     handleSubmitAddress (address) {
       let addressExists = false
@@ -65,7 +65,7 @@ export default {
       this.$ls.set('list', this.addresses)
     },
     handleRemoveAddress (cep) {
-      this.$confirm('Isso irá remover o endereço permanentemente. Prosseguir?', 'Warning', {
+      this.$confirm('Isso irá remover o endereço permanentemente. Prosseguir?', 'Aviso:', {
         confirmButtonText: 'Sim',
         cancelButtonText: 'Cancelar',
         type: 'warning'
