@@ -9,11 +9,11 @@
     <el-row v-if="addresses.length > 0" :gutter="10">
       <el-col :span="24">
         <h2>Meus endereços</h2>
-        <address-list :addresses="addresses" @click="handleRemoveAddress"></address-list>
+        <address-list :addresses="addresses" @change="handleChangeAddress" @click="handleRemoveAddress"></address-list>
       </el-col>
     </el-row>
     <el-dialog width="65%" title="Adicionar novo endereço" :visible.sync="addNewAddress">
-      <address-form @submit="handleSubmitAddress"></address-form>
+      <address-form @submit="handleSubmitAddress" :is-edit="false"></address-form>
     </el-dialog>
   </div>
 </template>
@@ -39,6 +39,9 @@ export default {
     }
   },
   methods: {
+    handleChangeAddress (address) {
+      console.log(address)
+    },
     handleSubmitAddress (address) {
       let addressExists = false
       this.addresses.forEach((i) => {
@@ -69,6 +72,7 @@ export default {
       }).then(() => {
         const newList = this.addresses.filter(element => element.cep !== cep)
         this.addresses = newList
+        this.$ls.set('list', this.addresses)
         this.$message({
           type: 'success',
           message: 'Endereço removido.'

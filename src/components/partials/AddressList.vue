@@ -17,8 +17,12 @@
               <p>{{ address.logradouro }}</p>
               <p>{{ address.bairro }} - {{ address.uf }}</p>
               <p>{{ address.cep }}</p>
-              <el-button type="text" class="button">Editar</el-button>
-              <el-button type="text" class="button" @click="removeAddress(address.cep)">Remover</el-button>
+              <br>
+              <el-button type="primary" icon="el-icon-edit" circle @click="editAddress()"></el-button>
+              <el-dialog width="65%" title="Editar lugar" :visible.sync="addNewAddress">
+                <address-form @submit="handleSubmitAddress" :is-edit-address="address"></address-form>
+              </el-dialog>
+              <el-button type="danger" icon="el-icon-delete" circle @click="removeAddress(address.cep)"></el-button>
             </div>
           </div>
         </el-card>
@@ -28,10 +32,16 @@
 </template>
 
 <script>
+import AddressForm from '@/components/partials/AddressForm.vue'
+
 export default {
   props: ['addresses'],
+  components: {
+    AddressForm
+  },
   data () {
     return {
+      addNewAddress: false
     }
   },
   methods: {
@@ -40,6 +50,14 @@ export default {
     },
     removeAddress (cep) {
       this.$emit('click', cep)
+    },
+    handleSubmitAddress (newAddress) {
+      this.addNewAddress = true
+      this.$emit('change', newAddress)
+      // this.$emit('submit', newAddress)
+    },
+    editAddress () {
+      this.addNewAddress = true
     }
   }
 }

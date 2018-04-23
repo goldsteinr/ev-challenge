@@ -1,6 +1,6 @@
 <template>
   <el-row>
-    <el-form label-position="left" label-width="80px" status-icon :model="addressForm" ref="addressFormValidate" :rules="addressFormRules">
+    <el-form v-if="!isEditAddress" label-position="left" label-width="80px" status-icon :model="addressForm" ref="addressFormValidate" :rules="addressFormRules">
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item prop="name" label="Lugar">
@@ -59,6 +59,65 @@
         </el-col>
       </el-row>
     </el-form>
+    <el-form v-else label-position="left" label-width="80px" status-icon :model="addressForm" ref="editAddressFormValidate">
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item prop="name" label="Lugar">
+            <el-input type="text" placeholder="Casa, trabalho, etc..." v-model="isEditAddress.name">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="16">
+          <el-form-item prop="cep" label="CEP">
+            <el-input maxlength="8" type="text" placeholder="Digite o CEP" @keyup.native="handleInput" v-model="isEditAddress.cep">
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+        <el-button type="text" @click="findMyCepNumber">Não sei o meu CEP</el-button>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item prop="logradouro" label="Endereço">
+            <el-input type="text" placeholder="Rua, Avenida, etc..." v-model="isEditAddress.logradouro">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item prop="bairro" label="Bairro">
+            <el-input type="text" placeholder="Digite o bairro" v-model="isEditAddress.bairro">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="16">
+          <el-form-item prop="cidade" label="Cidade">
+            <el-input type="text" placeholder="Digite a cidade" v-model="isEditAddress.cidade">
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item prop="uf" label="UF">
+            <el-input type="text" placeholder="Digite o estado" v-model="isEditAddress.uf">
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item>
+            <el-button plain>Cancelar</el-button>
+            <el-button type="success" :loading="isLoading" plain @click="updateAddress('editAddressFormValidate')">Atualizar endereço</el-button>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
   </el-row>
 </template>
 
@@ -66,6 +125,9 @@
 import axios from 'axios'
 
 export default {
+  props: [
+    'is-edit-address'
+  ],
   data () {
     const checkCep = (rule, value, callback) => {
       const cepNumber = value
@@ -83,6 +145,14 @@ export default {
     return {
       isLoading: false,
       addressForm: {
+        cep: '',
+        name: '',
+        bairro: '',
+        cidade: '',
+        logradouro: '',
+        uf: ''
+      },
+      editAddressForm: {
         cep: '',
         name: '',
         bairro: '',
@@ -125,6 +195,13 @@ export default {
         }
         return false
       })
+    },
+    updateAddress (formName) {
+      this.isLoading = true
+      const newAddress = Object.assign({}, this.isEditAddress)
+      this.$emit('submit', newAddress)
+      this.isLoading = false
+      this.$refs[formName].resetFields()
     },
     validateCep () {
       const validCepRegex = /^[0-9]{8}$/
