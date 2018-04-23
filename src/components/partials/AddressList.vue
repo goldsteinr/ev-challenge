@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row :gutter="10">
+    <el-row>
       <el-col :span="8" v-for="address in addresses" :key="address.cep">
         <el-card :body-style="{ padding: '0px' }">
           <div class="google-maps">
@@ -12,11 +12,13 @@
             </iframe>
           </div>
           <div style="padding: 14px;">
-            <span><strong>{{ address.name }}</strong></span>
+            <h3 class="card-title">{{ address.name }}</h3>
             <div class="bottom clearfix">
-              <span>{{ address.cidade }}</span>
+              <p>{{ address.logradouro }}</p>
+              <p>{{ address.bairro }} - {{ address.uf }}</p>
+              <p>{{ address.cep }}</p>
               <el-button type="text" class="button">Editar</el-button>
-              <el-button type="text" class="button">Remover</el-button>
+              <el-button type="text" class="button" @click="removeAddress(address.cep)">Remover</el-button>
             </div>
           </div>
         </el-card>
@@ -35,6 +37,9 @@ export default {
   methods: {
     getMapSrc (address) {
       return `https://www.google.com/maps/embed/v1/place?key=AIzaSyA9CUGqfNQqx-dZGRThotjPTfAIQaTf768&q=${address.logradouro},${address.cidade}+${address.uf}`
+    },
+    removeAddress (cep) {
+      this.$emit('click', cep)
     }
   }
 }
@@ -45,7 +50,9 @@ export default {
     width: 100%;
     display: block;
   }
-
+  .card-title {
+    margin: 5px;
+  }
   .clearfix:before,
   .clearfix:after {
       display: table;
@@ -53,5 +60,11 @@ export default {
   }
   .clearfix:after {
       clear: both
+  }
+  .el-card {
+    margin: 10px;
+  }
+  .bottom p {
+    margin: 2px 0;
   }
 </style>
