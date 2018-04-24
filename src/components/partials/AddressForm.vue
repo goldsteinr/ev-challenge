@@ -30,7 +30,7 @@
       </el-row>
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :md="12">
-          <el-form-item prop="complemento" label="Complemento">
+          <el-form-item prop="complemento" label="Número">
             <el-input type="text" placeholder="Digite o complemento" v-model="addressForm.complemento">
             </el-input>
           </el-form-item>
@@ -91,7 +91,7 @@
       </el-row>
       <el-row :gutter="20">
         <el-col :xs="24" :sm="24" :md="12">
-          <el-form-item prop="complemento" label="Complemento">
+          <el-form-item prop="complemento" label="Número">
             <el-input type="text" :placeholder="editAdressObj.complemento" v-model="editAddressForm.complemento">
             </el-input>
           </el-form-item>
