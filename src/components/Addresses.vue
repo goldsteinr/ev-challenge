@@ -11,7 +11,7 @@
         <h2>Meus endereços</h2>
         <el-row>
           <el-col :md="8" :xs="24" :sm="12" :lg="6" :xl="4" v-for="address in addresses" :key="address.cep">
-            <address-card :address="address" @click="handleRemoveAddress" @change="handleAddressChange"></address-card>
+            <address-card :location="currentLocation" :address="address" @click="handleRemoveAddress" @change="handleAddressChange"></address-card>
           </el-col>
         </el-row>
       </el-col>
@@ -30,7 +30,8 @@ export default {
   data () {
     return {
       addNewAddress: false,
-      addresses: []
+      addresses: [],
+      currentLocation: {}
     }
   },
   components: {
@@ -38,6 +39,12 @@ export default {
     AddressForm
   },
   created () {
+    navigator.geolocation.getCurrentPosition(location => {
+      this.currentLocation = location.coords
+    }, () => this.$message({
+      type: 'error',
+      message: 'Não foi possível verificar a sua localização.'
+    }))
     if (this.$ls.get('list')) {
       this.addresses = this.$ls.get('list')
     }
